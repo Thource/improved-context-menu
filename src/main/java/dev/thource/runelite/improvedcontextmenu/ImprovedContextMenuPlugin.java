@@ -1,7 +1,6 @@
 package dev.thource.runelite.improvedcontextmenu;
 
 import com.google.inject.Provides;
-import com.google.inject.name.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,17 +15,12 @@ import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.Player;
 import net.runelite.api.events.MenuOpened;
-import net.runelite.client.Notifier;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.game.ItemManager;
-import net.runelite.client.input.KeyManager;
 import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.PluginManager;
-import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 
 /**
  * ImprovedContextMenuPlugin is a RuneLite plugin designed to improve the functionality of the
@@ -41,17 +35,9 @@ import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 )
 public class ImprovedContextMenuPlugin extends Plugin {
 
-  @Getter @Inject protected PluginManager pluginManager;
-
-  @Inject @Getter @Named("developerMode") boolean developerMode;
-
-  @Getter @Inject private Notifier notifier;
   @Getter @Inject private Client client;
   @Getter @Inject private ClientThread clientThread;
-  @Getter @Inject private InfoBoxManager infoBoxManager;
-  @Getter @Inject private ItemManager itemManager;
   @Getter @Inject private ImprovedContextMenuConfig config;
-  @Inject private KeyManager keyManager;
   @Inject private MouseManager mouseManager;
 
   @Inject private ImprovedContextMenuInputListener improvedContextMenuInputListener;
