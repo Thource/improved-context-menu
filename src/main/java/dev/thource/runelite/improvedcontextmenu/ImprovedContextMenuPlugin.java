@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import javax.inject.Inject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,24 +30,11 @@ import net.runelite.client.plugins.PluginDescriptor;
 @Slf4j
 @PluginDescriptor(
     name = "Improved Context Menu",
-    description = "Improves the context (right click) menu by adding scrolling and other "
-        + "functionality.",
-    tags = {"right click menu", "context menu"}
+    description = "Improves the context (right click) menu by adding scrolling indicators, entry "
+        + "limit and condensing player options",
+    tags = {"right click", "context menu", "condense player options"}
 )
 public class ImprovedContextMenuPlugin extends Plugin {
-
-  @Getter @Inject private Client client;
-  @Getter @Inject private ClientThread clientThread;
-  @Getter @Inject private ImprovedContextMenuConfig config;
-  @Inject private MouseManager mouseManager;
-
-  @Inject private ImprovedContextMenuInputListener improvedContextMenuInputListener;
-  private MenuEntry[] menuEntries;
-  private final Map<MenuEntry, List<MenuEntry>> submenuEntryMap = new HashMap<>();
-  private int scrolledAmount = 0;
-  private boolean isMenuScrollable = false;
-  @Getter private MenuEntry scrollUpIndicator;
-  @Getter private MenuEntry scrollDownIndicator;
 
   public static final int MENU_HEADER_HEIGHT = 22;
   public static final int MENU_ROW_HEIGHT = 15;
@@ -54,6 +42,17 @@ public class ImprovedContextMenuPlugin extends Plugin {
   private static final int CHARACTER_WIDTH_SPACE = 4;
   private static final int CHARACTER_WIDTH_UP_CHEVRON = 9;
   private static final int CHARACTER_WIDTH_LOWERCASE_V = 8;
+  private final Map<MenuEntry, List<MenuEntry>> submenuEntryMap = new HashMap<>();
+  @Getter @Inject private Client client;
+  @Getter @Inject private ClientThread clientThread;
+  @Getter @Inject private ImprovedContextMenuConfig config;
+  @Inject private MouseManager mouseManager;
+  @Inject private ImprovedContextMenuInputListener improvedContextMenuInputListener;
+  private MenuEntry[] menuEntries;
+  private int scrolledAmount = 0;
+  private boolean isMenuScrollable = false;
+  @Getter private MenuEntry scrollUpIndicator;
+  @Getter private MenuEntry scrollDownIndicator;
 
   @Override
   protected void startUp() {
@@ -76,7 +75,7 @@ public class ImprovedContextMenuPlugin extends Plugin {
     condensePlayerOptions();
 
     scrolledAmount = 0;
-    isMenuScrollable = config.enableScrolling() && menuEntries.length > getMaxMenuEntries();
+    isMenuScrollable = menuEntries.length > getMaxMenuEntries();
 
     if (isMenuScrollable) {
       scrollUpIndicator = client.createMenuEntry(getMaxMenuEntries() - 1);
@@ -98,23 +97,15 @@ public class ImprovedContextMenuPlugin extends Plugin {
     int upSpaces = (textWidth - CHARACTER_WIDTH_UP_CHEVRON * 3) / CHARACTER_WIDTH_SPACE;
     int downSpaces = (textWidth - CHARACTER_WIDTH_LOWERCASE_V * 3) / CHARACTER_WIDTH_SPACE;
 
-    StringBuilder upOption = new StringBuilder("^");
+    StringBuilder upOption = new StringBuilder();
     // This looks weird, but if upSpaces is 5, this will get us 3 on the left and 2 on the right
     for (int i = 0; i < upSpaces - upSpaces / 2; i++) {
       upOption.append(" ");
     }
     upOption.append("^");
-    for (int i = 0; i < upSpaces / 2; i++) {
-      upOption.append(" ");
-    }
-    upOption.append("^");
 
-    StringBuilder downOption = new StringBuilder("v");
+    StringBuilder downOption = new StringBuilder();
     for (int i = 0; i < downSpaces - downSpaces / 2; i++) {
-      downOption.append(" ");
-    }
-    downOption.append("v");
-    for (int i = 0; i < downSpaces / 2; i++) {
       downOption.append(" ");
     }
     downOption.append("v");
@@ -135,7 +126,8 @@ public class ImprovedContextMenuPlugin extends Plugin {
       MenuEntry rawMenuEntry = menuEntries[i];
 
       Player player = rawMenuEntry.getPlayer();
-      if (player != null) {
+      if (!Objects.equals(rawMenuEntry.getOption(), "Use") && !Objects.equals(
+          rawMenuEntry.getOption(), "Cast") && player != null) {
         MenuEntry submenu = playerSubmenuMap.computeIfAbsent(player, ply -> {
           MenuEntry newSubmenu = client.createMenuEntry(0)
               .setIdentifier(rawMenuEntry.getIdentifier()).setTarget(rawMenuEntry.getTarget())
@@ -158,7 +150,8 @@ public class ImprovedContextMenuPlugin extends Plugin {
   }
 
   private int getMaxMenuEntries() {
-    return (client.getCanvasHeight() - MENU_HEADER_HEIGHT) / MENU_ROW_HEIGHT;
+    return Math.min((client.getCanvasHeight() - MENU_HEADER_HEIGHT) / MENU_ROW_HEIGHT,
+        config.maxMenuEntries());
   }
 
   private void reorderMenu() {

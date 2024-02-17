@@ -3,6 +3,7 @@ package dev.thource.runelite.improvedcontextmenu;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Range;
 
 /** ImprovedContextMenuConfig manages the config for the plugin. */
 @SuppressWarnings("SameReturnValue")
@@ -12,19 +13,20 @@ public interface ImprovedContextMenuConfig extends Config {
   String CONFIG_GROUP = "improvedContextMenu";
 
   @ConfigItem(
-      keyName = "enableScrolling",
-      name = "Enable scrolling",
-      description = "Whether scrolling the mouse wheel while hovering the context menu will swap"
-          + "the menu entries.")
-  default boolean enableScrolling() {
+      keyName = "condensePlayerOptions",
+      name = "Condense player options",
+      description = "Whether player options should be placed in submenus (like how it works in "
+          + "rs3).")
+  default boolean condensePlayerOptions() {
     return true;
   }
 
+  @Range(min = 5)
   @ConfigItem(
-      keyName = "condensePlayerOptions",
-      name = "Condense player options",
-      description = "Whether player options should be placed in submenus (like how it works in rs3).")
-  default boolean condensePlayerOptions() {
-    return true;
+      keyName = "maxMenuEntries",
+      name = "Max menu entries",
+      description = "The max amount of entries to show in the context menu.")
+  default int maxMenuEntries() {
+    return 999;
   }
 }

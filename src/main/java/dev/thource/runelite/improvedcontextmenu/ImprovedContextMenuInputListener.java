@@ -12,21 +12,17 @@ import net.runelite.client.input.MouseWheelListener;
 public class ImprovedContextMenuInputListener implements MouseWheelListener, MouseListener {
 
   private final ImprovedContextMenuPlugin plugin;
-  private final ImprovedContextMenuConfig improvedContextMenuConfig;
   private final Client client;
 
   @Inject
-  private ImprovedContextMenuInputListener(ImprovedContextMenuPlugin plugin,
-      ImprovedContextMenuConfig improvedContextMenuConfig,
-      Client client) {
+  private ImprovedContextMenuInputListener(ImprovedContextMenuPlugin plugin, Client client) {
     this.plugin = plugin;
-    this.improvedContextMenuConfig = improvedContextMenuConfig;
     this.client = client;
   }
 
   @Override
   public MouseWheelEvent mouseWheelMoved(MouseWheelEvent event) {
-    if (improvedContextMenuConfig.enableScrolling() && client.isMenuOpen() && isMouseOverMenu()) {
+    if (client.isMenuOpen() && isMouseOverMenu()) {
       plugin.scrollMenu(event.getWheelRotation());
       event.consume();
     }
