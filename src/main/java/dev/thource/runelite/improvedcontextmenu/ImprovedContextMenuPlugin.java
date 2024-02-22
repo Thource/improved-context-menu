@@ -7,14 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Objects;
 import javax.inject.Inject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
-import net.runelite.api.Player;
 import net.runelite.api.events.MenuOpened;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -68,11 +65,10 @@ public class ImprovedContextMenuPlugin extends Plugin {
   }
 
   // Use a high priority so that this is called way after any other plugins add menu entries
-  @Subscribe(priority = 999_999_999)
+  @Subscribe(priority = 999)
   public void onMenuOpened(MenuOpened event) {
     menuEntries = event.getMenuEntries();
-    submenuEntryMap.clear();
-    condensePlayerOptions();
+    populateSubmenuEntryMap();
 
     scrolledAmount = 0;
     isMenuScrollable = menuEntries.length > getMaxMenuEntries();
@@ -114,36 +110,18 @@ public class ImprovedContextMenuPlugin extends Plugin {
     scrollDownIndicator.setOption(downOption.toString());
   }
 
-  private void condensePlayerOptions() {
-    if (!config.condensePlayerOptions()) {
-      return;
-    }
-
-    Map<Player, MenuEntry> playerSubmenuMap = new HashMap<>();
-
+  private void populateSubmenuEntryMap() {
+    submenuEntryMap.clear();
     List<MenuEntry> menuEntryList = new ArrayList<>();
     for (int i = menuEntries.length - 1; i >= 0; i--) {
-      MenuEntry rawMenuEntry = menuEntries[i];
+      MenuEntry menuEntry = menuEntries[i];
 
-      Player player = rawMenuEntry.getPlayer();
-      if (!Objects.equals(rawMenuEntry.getOption(), "Use") && !Objects.equals(
-          rawMenuEntry.getOption(), "Cast") && player != null) {
-        MenuEntry submenu = playerSubmenuMap.computeIfAbsent(player, ply -> {
-          MenuEntry newSubmenu = client.createMenuEntry(0)
-              .setIdentifier(rawMenuEntry.getIdentifier()).setTarget(rawMenuEntry.getTarget())
-              .setType(MenuAction.RUNELITE_SUBMENU).setParam0(rawMenuEntry.getParam0())
-              .setParam1(rawMenuEntry.getParam1());
-          menuEntryList.add(0, newSubmenu);
-
-          return newSubmenu;
-        });
-
-        submenuEntryMap.computeIfAbsent(submenu, a -> new ArrayList<>()).add(0, rawMenuEntry);
-        rawMenuEntry.setParent(submenu);
+      if (menuEntry.getParent() != null) {
+        submenuEntryMap.computeIfAbsent(menuEntry, a -> new ArrayList<>()).add(0, menuEntry.getParent());
         continue;
       }
 
-      menuEntryList.add(0, rawMenuEntry);
+      menuEntryList.add(0, menuEntry);
     }
 
     menuEntries = menuEntryList.toArray(new MenuEntry[]{});

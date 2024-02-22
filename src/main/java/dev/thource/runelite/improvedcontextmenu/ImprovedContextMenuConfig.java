@@ -12,15 +12,6 @@ public interface ImprovedContextMenuConfig extends Config {
 
   String CONFIG_GROUP = "improvedContextMenu";
 
-  @ConfigItem(
-      keyName = "condensePlayerOptions",
-      name = "Condense player options",
-      description = "Whether player options should be placed in submenus (like how it works in "
-          + "rs3).")
-  default boolean condensePlayerOptions() {
-    return true;
-  }
-
   @Range(min = 5)
   @ConfigItem(
       keyName = "maxMenuEntries",
