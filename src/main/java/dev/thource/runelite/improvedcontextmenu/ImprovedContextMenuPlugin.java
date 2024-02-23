@@ -27,9 +27,8 @@ import net.runelite.client.plugins.PluginDescriptor;
 @Slf4j
 @PluginDescriptor(
     name = "Improved Context Menu",
-    description = "Improves the context (right click) menu by adding scrolling indicators, entry "
-        + "limit and condensing player options",
-    tags = {"right click", "context menu", "condense player options"}
+    description = "Improves the context (right click) menu by adding scrolling indicators and menu entry limit",
+    tags = {"right click", "context menu"}
 )
 public class ImprovedContextMenuPlugin extends Plugin {
 
