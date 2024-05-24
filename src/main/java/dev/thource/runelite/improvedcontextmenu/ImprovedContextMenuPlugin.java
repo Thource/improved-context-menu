@@ -116,7 +116,7 @@ public class ImprovedContextMenuPlugin extends Plugin {
       MenuEntry menuEntry = menuEntries[i];
 
       if (menuEntry.getParent() != null) {
-        submenuEntryMap.computeIfAbsent(menuEntry, a -> new ArrayList<>()).add(0, menuEntry.getParent());
+        submenuEntryMap.computeIfAbsent(menuEntry.getParent(), a -> new ArrayList<>()).add(0, menuEntry);
         continue;
       }
 
